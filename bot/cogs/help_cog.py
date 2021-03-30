@@ -14,15 +14,7 @@ log = logging.getLogger(__name__)
 LINK_URL = 'https://top.gg/bot/710672266245177365'
 HELP_EMBED_SIZE = 15
 
-class HelpCog(commands.Cog):
-
-    def __init__(self, bot):
-        self.bot = bot
-        self.commands = []
-    
-    @ext.command()
-    async def help(self, ctx, *, command_name = None):
-
+async def command_logic(self, ctx, command_name = None ):
         if command_name:
             command = self.find_command(self.bot, command_name)
             if isinstance(command, ext.ClemBotCommand):
@@ -33,6 +25,16 @@ class HelpCog(commands.Cog):
                 await self.send_default_help(ctx, f'Command: {command_name} not found, here is a list of all my commands')
         else:
             await self.send_default_help(ctx)
+
+class HelpCog(commands.Cog):
+
+    def __init__(self, bot):
+        self.bot = bot
+        self.commands = []
+
+    @ext.command()
+    async def help(self, ctx, *, command_name = None):
+        await command_logic(self, ctx, command_name = None)
     
     async def send_group_help(self, ctx, command: commands.Group):
         prefix = await self.bot.current_prefix(ctx)
@@ -56,7 +58,7 @@ class HelpCog(commands.Cog):
         com_repr = '\n'.join(self.get_commands_repr(command.commands, f'{prefix}{command.qualified_name} '))
         embed.add_field(name='Subcommands',value= com_repr or 'No example provided', inline=False)
 
-        embed.set_author(name=f'{self.bot.user.name} - Help', url=LINK_URL, icon_url=self.bot.user.avatar_url)
+        embed.set_author(name=f'{self.bot.user.name} - Help1', url=LINK_URL, icon_url=self.bot.user.avatar_url)
 
         await ctx.send(embed=embed)
 
@@ -75,7 +77,7 @@ class HelpCog(commands.Cog):
                 name='Usage Example',
                 value= self.get_example(command.example, prefix) or 'No example provided',
                 inline=False)
-        embed.set_author(name=f'{self.bot.user.name} - Help', url=LINK_URL, icon_url=self.bot.user.avatar_url)
+        embed.set_author(name=f'{self.bot.user.name} - Help2', url=LINK_URL, icon_url=self.bot.user.avatar_url)
 
         await ctx.send(embed=embed)
 
@@ -113,7 +115,7 @@ class HelpCog(commands.Cog):
                     description=f'for more info on a command run `{prefix}help <CommandName>`', 
                     color= Colors.ClemsonOrange)
 
-            embed.set_author(name=f'{self.bot.user.name} - Help', url=LINK_URL, icon_url=self.bot.user.avatar_url)
+            embed.set_author(name=f'{self.bot.user.name} - Help3', url=LINK_URL, icon_url=self.bot.user.avatar_url)
             embed.add_field(name='Commands', value='\n'.join(command))
 
             cog_embeds.append(embed)
@@ -154,5 +156,10 @@ class HelpCog(commands.Cog):
             """Yield successive n-sized chunks from lst."""
             for i in range(0, len(lst), n):
                 yield lst[i:i + n]
+
 def setup(bot): 
     bot.add_cog(HelpCog(bot))
+
+    @bot.event    
+    async def on_command_error(ctx, error):
+        await command_logic(HelpCog(bot),ctx)
